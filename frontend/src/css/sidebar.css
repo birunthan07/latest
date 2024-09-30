@@ -1,0 +1,70 @@
+
+
+.sidebar {
+  width: 250px;
+  height: 100vh;
+  background-color: #2c3e50; /* Rich dark blue background */
+  padding-top: 20px;
+  position: fixed;
+  box-shadow: 2px 0 5px rgba(0, 0, 0, 0.5); /* Subtle shadow for depth */
+}
+
+.sidebar h2 {
+  color: #ecf0f1; /* Light text color for title */
+  font-size: 1.8rem;
+  text-align: center;
+  margin-bottom: 20px;
+  font-weight: bold;
+  border-bottom: 2px solid #ecf0f1; /* Underline for separation */
+  padding-bottom: 10px;
+}
+
+.nav {
+  list-style: none;
+  padding-left: 0;
+  margin: 0;
+}
+
+.nav-item {
+  margin-bottom: 15px; /* Spacing between items */
+}
+
+.nav-link {
+  color: #ecf0f1; /* Light color for contrast */
+  font-size: 1.2rem;
+  text-decoration: none;
+  padding: 10px 20px;
+  display: block;
+  border-radius: 8px;
+  transition: background-color 0.3s, color 0.3s; /* Smooth hover transition */
+}
+
+.nav-link:hover {
+  background-color: #34495e; /* Darker background on hover */
+  color: #1abc9c; /* Vibrant green text color on hover */
+}
+
+.nav-link.active {
+  background-color: #1abc9c; /* Highlight active page */
+  color: #ffffff; /* White text for active links */
+}
+
+.sidebar .nav-item .nav-link .icon {
+  margin-right: 10px;
+  font-size: 1.4rem;
+}
+
+@media (max-width: 768px) {
+  .sidebar {
+    width: 200px;
+  }
+
+  .nav-link {
+    font-size: 1rem;
+    padding: 8px 15px;
+  }
+
+  .sidebar h2 {
+    font-size: 1.5rem;
+  }
+}
