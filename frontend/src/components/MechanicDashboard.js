@@ -40,7 +40,7 @@ const MechanicDashboard = () => {
 
   const updateMechanicStatus = async (latitude, longitude, availability) => {
     try {
-      const response = await axios.post('http://localhost:8000/api/mechanic/update-status', {
+      const response = await axios.put('http://localhost:8000/api/mechanic/update-status', {
         isAvailable: availability,
         location: { latitude, longitude },
       });

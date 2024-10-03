@@ -101,9 +101,13 @@
 
 //       if (error.response) {
 //         console.error('Error response:', error.response.data); // Log error response for debugging
-//         setServerError(error.response.data?.msg || 'Server error occurred');
+//         if (error.response.status === 400) {
+//           setServerError('Invalid email or password. Please try again.');
+//         } else {
+//           setServerError('Unexpected error occurred. Please try again later.');
+//         }
 //       } else if (error.request) {
-//         setServerError('Network error');
+//         setServerError('Network error. Please check your connection.');
 //       } else {
 //         setServerError(error.message || 'Request error');
 //       }
@@ -154,7 +158,6 @@
 // }
 
 // export default LoginForm;
-
 
 import React, { useState } from 'react';
 import axios from 'axios';
@@ -223,20 +226,26 @@ function LoginForm() {
         throw new Error('Token not received');
       }
 
-      // Store the token
-      localStorage.setItem('token', token);
-      console.log('Token stored:', token);
-
       // Decode the token
       const decodedToken = jwtDecode(token);
       const role = decodedToken.user?.role; // Adjust this based on token payload
+      const name = decodedToken.user?.username; // Assuming 'username' is part of the payload
 
       if (!role) {
         throw new Error('Role not found in token');
       }
 
-      // Store the role
+      // Store the token, role, and name
+      localStorage.setItem('token', token);
       localStorage.setItem('userRole', role);
+      localStorage.setItem('userName', name); // Store user name
+      sessionStorage.setItem('token', token); // Optionally store in session storage
+      sessionStorage.setItem('userRole', role); // Optionally store role in session storage
+      sessionStorage.setItem('userName', name); // Optionally store name in session storage
+
+      console.log('Token stored:', token);
+      console.log('Role stored:', role);
+      console.log('Name stored:', name);
 
       setSuccessMessage('Login successful!');
       setFormData({ email: '', password: '' });
@@ -314,4 +323,3 @@ function LoginForm() {
 }
 
 export default LoginForm;
-

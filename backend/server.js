@@ -20,7 +20,7 @@ app.use(cors({
     allowedHeaders: 'Content-Type,Authorization'
 }));
 
-// app.use(cors(corsOptions));
+
 
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: true })); // For parsing URL-encoded bodies
