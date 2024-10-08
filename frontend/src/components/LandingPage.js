@@ -11,10 +11,10 @@ import heroimg from '/home/uki-jaffna/Documents/mechanic/frontend/src/components
 const LandingPage = () => {
   const navigate = useNavigate();
 
-  const handlePublishJob = () => {
-    const isMechanicRegistered = localStorage.getItem('userRole') === 'mechanic';
-    navigate(isMechanicRegistered ? '/post-job' : '/mechanic-register');
-  };
+  // const handlePublishJob = () => {
+  //   const isMechanicRegistered = localStorage.getItem('userRole') === 'mechanic';
+  //   navigate(isMechanicRegistered ? '/post-job' : '/mechanic-register');
+  // };
 
   return (
     <div className="landing-page">

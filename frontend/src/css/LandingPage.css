@@ -1,4 +1,4 @@
-Reset some default styles
+/* Reset and General Styles */
 * {
   margin: 0;
   padding: 0;
@@ -10,23 +10,18 @@ Reset some default styles
 .container {
   max-width: 1200px;
   margin: 0 auto;
-  padding: 0 10px;
+  padding: 0 15px;
 }
 
 /* Navbar Styles */
 .navbar {
   background-color: #343a40;
-  padding: 20px 0;
+  padding: 10px 0;
 }
 
 .navbar .container {
   display: flex;
   justify-content: space-between;
-  align-items: center;
-}
-
-.navbar-brand {
-  display: flex;
   align-items: center;
 }
 
@@ -37,13 +32,14 @@ Reset some default styles
 .nav-links {
   list-style: none;
   display: flex;
-  gap: 20px;
+  gap: 15px;
 }
 
 .nav-links a {
   color: #fff;
   text-decoration: none;
-  transition: color 0.3s ease;
+  padding: 10px 15px;
+  transition: color 0.3s ease, background-color 0.3s ease;
 }
 
 .nav-links a:hover {
@@ -51,7 +47,6 @@ Reset some default styles
 }
 
 .btn-small {
-  padding: 10px 20px;
   border-radius: 5px;
   text-decoration: none;
   transition: background-color 0.3s ease;
@@ -87,9 +82,7 @@ Reset some default styles
 
 /* Hero Section Styles */
 .hero {
-  background-image: url('../components/images (1).jpeg');
-  background-size: cover;
-  background-position: center;
+  background: linear-gradient(rgba(0, 0, 0, 0.5), rgba(0, 0, 0, 0.5)), url('../components/images (1).jpeg') no-repeat center center/cover;
   color: #fff;
   padding: 100px 0;
   text-align: center;
@@ -114,55 +107,16 @@ Reset some default styles
 }
 
 .hero-image img {
-  width: 300px;
+  width: 100%;
+  max-width: 300px;
   height: auto;
   border-radius: 20px;
-}
-
-/* Features Section Styles */
-.features {
-  padding: 80px 0;
-  background-color: #f8f9fa;
-}
-
-.feature-card {
-  background-color: #fff;
-  border-radius: 10px;
-  box-shadow: 0 10px 20px rgba(0, 0, 0, 0.1);
-  padding: 40px;
-  text-align: center;
-  transition: transform 0.3s ease;
-}
-
-.feature-card img {
-  width: 100px;
-  height: 100px;
-  margin-bottom: 20px;
-  border-radius: 50%;
-}
-
-.feature-card h2 {
-  font-size: 1.8rem;
-  margin-bottom: 15px;
-}
-
-.feature-card p {
-  font-size: 1rem;
-  margin-bottom: 20px;
-}
-
-.feature-card .btn-primary {
-  padding: 10px 20px;
-}
-
-.feature-card:hover {
-  transform: translateY(-10px);
 }
 
 /* Footer Styles */
 footer {
   background-color: #343a40;
-  padding: 40px 0;
+  padding: 20px 0;
   color: #fff;
   text-align: center;
 }

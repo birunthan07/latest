@@ -1,32 +1,37 @@
-// src/server.js
-
 const express = require('express');
 const mongoose = require('mongoose');
 const cors = require('cors');
 const dotenv = require('dotenv');
+const { Server } = require("socket.io");  // Corrected socket.io import
+const http = require("http");
+const nodemailer = require("nodemailer");
 const bodyParser = require('body-parser');
 const authRoutes = require('./routes/auth');
-const mechanicRoutes = require('./routes/mechanic'); // Updated to use mechanic routes
-const adminRoutes = require('./routes/admin'); // Import admin routes
-const mechanicRequestRouter = require('./routes/MechanicRequestSchema'); // Adjust path as needed
+const mechanicRoutes = require('./routes/mechanic');
+const adminRoutes = require('./routes/admin');
+const mechanicRequestRouter = require('./routes/MechanicRequestSchema');
+const paymentRoutes = require('./routes/payment');
+const packageRoutes = require('./routes/packageRoutes');
+
 
 dotenv.config();
 
+// Create Express app
 const app = express();
 
+// Middleware
 app.use(cors({
     origin: 'http://localhost:3000', // Your frontend URL
     methods: 'GET,POST,PUT,DELETE,PATCH',
     allowedHeaders: 'Content-Type,Authorization'
 }));
 
-
-
 app.use(bodyParser.json());
-app.use(bodyParser.urlencoded({ extended: true })); // For parsing URL-encoded bodies
+app.use(bodyParser.urlencoded({ extended: true }));
 
-const PORT = process.env.PORT;
+const PORT = process.env.PORT || 5000; // Set default PORT if not defined
 
+// Database connection
 mongoose.connect(process.env.MONGO_URI, {
     useNewUrlParser: true,
     useUnifiedTopology: true,
@@ -36,16 +41,60 @@ mongoose.connect(process.env.MONGO_URI, {
 
 // Register user routes
 app.use('/api/auth', authRoutes);
+app.use('/api/mechanic', mechanicRoutes);
+app.use('/api/admin', adminRoutes);
+app.use('/api/mechanic-request', mechanicRequestRouter);
+app.use('/api/payment', paymentRoutes);
+app.use('/api/packages', packageRoutes);
 
-// Register mechanic routes
-app.use('/api/mechanic', mechanicRoutes); // Updated to include mechanic routes
+// Create HTTP server and Socket.io
+const server = http.createServer(app);
+const io = new Server(server, {
+    cors: {
+        origin: "http://localhost:3000", // Your frontend URL
+        methods: ["GET", "POST"]
+    }
+});
 
-// Register admin routes
-app.use('/api/admin', adminRoutes); // Add this line to include admin routes
+// Nodemailer setup
+const transporter = nodemailer.createTransport({
+    service: 'gmail',
+    auth: {
+        user: process.env.EMAIL_USER, // your email
+        pass: process.env.EMAIL_PASS, // your email password or app password
+    },
+});
 
-// Use the mechanic request router
-app.use('/api/mechanic-request', mechanicRequestRouter); // All routes defined in the router will now be prefixed with /api
+// Socket.io connection
+io.on("connection", (socket) => {
+    console.log("New client connected");
+    socket.emit("message", "Welcome to the mechanic finder app!");
 
-app.listen(PORT, () => {
+    socket.on("disconnect", () => {
+        console.log("Client disconnected");
+    });
+});
+
+// Example route to send an email
+app.post("/api/send-email", (req, res) => {
+    const { to, subject, text } = req.body;
+
+    const mailOptions = {
+        from: process.env.EMAIL_USER,
+        to,
+        subject,
+        text,
+    };
+
+    transporter.sendMail(mailOptions, (error, info) => {
+        if (error) {
+            return res.status(500).send(error.toString());
+        }
+        res.status(200).send("Email sent: " + info.response);
+    });
+});
+
+// Start the server
+server.listen(PORT, () => {
     console.log(`Server is running on port ${PORT}`);
 });

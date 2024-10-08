@@ -4,11 +4,18 @@ const express = require('express');
 const router = express.Router();
 const multer = require('multer');
 const path = require('path');
+// const sendEmail = require('../utils/email');
 const fs = require('fs');
 const jwt = require('jsonwebtoken');
 const bcrypt = require('bcryptjs');
 const Mechanic = require('../models/ mechanicmodel'); // Updated to use the Mechanic model
 const authMiddleware = require('../middleware/authMiddleware');
+
+
+
+
+
+
 
 // Define the upload directory
 const uploadDir = path.join(__dirname, '../uploads');

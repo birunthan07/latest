@@ -1,21 +1,30 @@
 
-// MechanicDashboard.js
+
+
+
+
+
 import React, { useState, useEffect } from 'react';
-import CompletedRepairs from './CompletedRepairs'; // Correct component import
-import MechanicRequests from './MechanicRequests'; // Correct component import
+import CompletedRepairs from './CompletedRepairs';
+import MechanicRequests from './MechanicRequests';
 import PaymentInfo from './PaymentInfo';
 import axios from 'axios';
+import { io } from 'socket.io-client';
+
+const socket = io('http://localhost:8000'); // Ensure this URL matches your server
 
 const MechanicDashboard = () => {
   const [isAvailable, setIsAvailable] = useState(false);
   const [location, setLocation] = useState({ latitude: null, longitude: null });
   const [locationError, setLocationError] = useState('');
+  const [packages, setPackages] = useState([]);
 
   const toggleAvailability = () => {
     if (!isAvailable) {
       getLiveLocation();
     } else {
       setLocation({ latitude: null, longitude: null });
+      updateMechanicStatus(null, null, false);
     }
     setIsAvailable(!isAvailable);
   };
@@ -30,51 +39,64 @@ const MechanicDashboard = () => {
           updateMechanicStatus(latitude, longitude, true);
         },
         (error) => {
-          setLocationError('Unable to retrieve your location.');
+          setLocationError('Unable to retrieve location. Please enable location services.');
+          console.error('Geolocation error:', error);
         }
       );
     } else {
-      setLocationError('Geolocation is not supported by your browser.');
+      setLocationError('Geolocation is not supported by this browser.');
     }
   };
 
   const updateMechanicStatus = async (latitude, longitude, availability) => {
     try {
-      const response = await axios.put('http://localhost:8000/api/mechanic/update-status', {
-        isAvailable: availability,
-        location: { latitude, longitude },
+      await axios.post('http://localhost:8000/api/mechanics/status', {
+        latitude,
+        longitude,
+        availability,
       });
-      console.log('Mechanic status updated successfully:', response.data);
     } catch (error) {
       console.error('Error updating mechanic status:', error);
     }
   };
 
   useEffect(() => {
-    if (!isAvailable) {
-      updateMechanicStatus(null, null, false);
-    }
-  }, [isAvailable]);
+    socket.on('connect', () => {
+      console.log('Socket connected:', socket.id);
+    });
+
+    axios.get('http://localhost:8000/api/packages')
+      .then(response => setPackages(response.data))
+      .catch(error => console.error('Error fetching packages:', error));
+
+    return () => {
+      socket.disconnect();
+    };
+  }, []);
 
   return (
-    <div className="dashboard-container">
+    <div>
       <h1>Mechanic Dashboard</h1>
-
-      <div className="availability-section">
-        <h2>Availability Status</h2>
-        <button
-          onClick={toggleAvailability}
-          className={`availability-button ${isAvailable ? 'available' : 'unavailable'}`}
-        >
-          {isAvailable ? 'Available for Services' : 'Unavailable for Services'}
-        </button>
-        {locationError && <p className="error-text">{locationError}</p>}
-      </div>
-
-      {/* Updated Section Names */}
-      <MechanicRequests />
+      <button onClick={toggleAvailability}>
+        {isAvailable ? 'Set as Unavailable' : 'Set as Available'}
+      </button>
+      {locationError && <p style={{ color: 'red' }}>{locationError}</p>}
+      {isAvailable && location.latitude && location.longitude && (
+        <p>Current Location: Latitude {location.latitude}, Longitude {location.longitude}</p>
+      )}
+      
       <CompletedRepairs />
+      <MechanicRequests />
       <PaymentInfo />
+
+      <h3>Available Packages</h3>
+      <ul>
+        {packages.map(pkg => (
+          <li key={pkg._id}>
+            <strong>{pkg.name}</strong>: {pkg.description} - ${pkg.price}
+          </li>
+        ))}
+      </ul>
     </div>
   );
 };

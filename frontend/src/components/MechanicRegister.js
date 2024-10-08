@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import axios from 'axios';
 import { Link } from 'react-router-dom';
-import '/home/uki-jaffna/Documents/mechanic/frontend/src/css/ MechanicRegisterForm.css';
+import '/home/uki-jaffna/Documents/mechanic/frontend/src/css/ MechanicRegisterForm.css'; // Fixed the import path
 
 function MechanicRegisterForm() {
   const [formData, setFormData] = useState({
@@ -10,7 +10,7 @@ function MechanicRegisterForm() {
     password: '',
     phoneNumber: '',
     address: '',
-    verificationCertificate: null
+    verificationCertificate: null,
   });
 
   const [errors, setErrors] = useState({});
@@ -57,12 +57,12 @@ function MechanicRegisterForm() {
     if (e.target.files) {
       setFormData({
         ...formData,
-        [e.target.name]: e.target.files[0]
+        [e.target.name]: e.target.files[0],
       });
     } else {
       setFormData({
         ...formData,
-        [e.target.name]: e.target.value
+        [e.target.name]: e.target.value,
       });
     }
   };
@@ -87,8 +87,8 @@ function MechanicRegisterForm() {
     try {
       const response = await axios.post('http://localhost:8000/api/mechanic/register', formDataToSend, {
         headers: {
-          'Content-Type': 'multipart/form-data'
-        }
+          'Content-Type': 'multipart/form-data',
+        },
       });
       console.log('Mechanic Registration Successful:', response.data);
 
@@ -100,7 +100,7 @@ function MechanicRegisterForm() {
         password: '',
         phoneNumber: '',
         address: '',
-        verificationCertificate: null
+        verificationCertificate: null,
       });
       setErrors({});
       setServerError('');

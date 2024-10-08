@@ -1,3 +1,4 @@
+// module.exports = mongoose.model('User', UserSchema);
 // const mongoose = require('mongoose');
 // const bcrypt = require('bcryptjs');
 
@@ -20,24 +21,24 @@
 //     role: {
 //         type: String,
 //         enum: ['user', 'admin'],  // Define valid roles, including mechanic
-//         default: 'user'                       // Default role
+//         default: 'user'           // Default role
 //     },
 //     isActive: {
 //         type: Boolean,
-//         default: true                         // Default to active user
+//         default: true             // Default to active user
 //     },
 //     address: {
 //         type: String,
 //         required: [true, 'Address is required']  // User address for locating services
 //     },
 //     phoneNumber: {
-//         type: Number,
+//         type: String,
 //         required: [true, 'Phone number is required'],  // Contact number
 //         match: [/^\d{10}$/, 'Please provide a valid phone number']  // Validate phone format
 //     },
 //     createdAt: {
 //         type: Date,
-//         default: Date.now                      // Track account creation date
+//         default: Date.now        // Track account creation date
 //     }
 // });
 
@@ -52,6 +53,9 @@
 // });
 
 // module.exports = mongoose.model('User', UserSchema);
+
+
+
 const mongoose = require('mongoose');
 const bcrypt = require('bcryptjs');
 
