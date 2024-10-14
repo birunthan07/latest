@@ -1,13 +1,8 @@
-
-
-
-
-
 import React, { useState, useEffect, useCallback, useMemo } from 'react';
-import { MapContainer, TileLayer, Marker, Popup, useMapEvents } from 'react-leaflet';
+import { MapContainer, TileLayer, Marker, Popup } from 'react-leaflet';
 import L from 'leaflet';
-import '/home/uki-jaffna/Documents/mechanic/frontend/src/css/NormalUserDashboard.css';
-  import {jwtDecode} from 'jwt-decode';
+import axios from 'axios';
+import jwtDecode from 'jwt-decode';
 import config from '../config';  // Import the config file
 
 // Fix for default marker icon issue with Leaflet and Webpack
@@ -18,48 +13,11 @@ L.Icon.Default.mergeOptions({
   shadowUrl: 'https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.7.1/images/marker-shadow.png',
 });
 
-// Custom hook for fetching user location
-const useUserLocation = (geocode, setLocation, setLocationCoords) => {
-  const [userLocation, setUserLocation] = useState(null);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState('');
-
-  useEffect(() => {
-    const fetchUserLocation = async () => {
-      setLoading(true);
-      if (navigator.geolocation) {
-        navigator.geolocation.getCurrentPosition(
-          async (position) => {
-            const { latitude, longitude } = position.coords;
-            setUserLocation([latitude, longitude]);
-            const locationName = await geocode([latitude, longitude]);
-            setLocation(locationName.length > 0 ? locationName[0].formatted_address : 'Unknown Location');
-            setLocationCoords([latitude, longitude]);
-            setLoading(false);
-          },
-          (error) => {
-            setError('Error getting user location.');
-            setLoading(false);
-          }
-        );
-      } else {
-        setError('Geolocation is not supported by this browser.');
-        setLoading(false);
-      }
-    };
-
-    fetchUserLocation();
-  }, [geocode, setLocation, setLocationCoords]);
-
-  return { userLocation, loading, error };
-};
-
 const UserDashboard = () => {
   const [location, setLocation] = useState('');
   const [locationCoords, setLocationCoords] = useState(null);
   const [mapCenter, setMapCenter] = useState([9.6615, 80.0255]);
   const [suggestions, setSuggestions] = useState([]);
-  const [activeInput, setActiveInput] = useState('');
   const [vehicleType, setVehicleType] = useState('Car');
   const [loadingSuggestions, setLoadingSuggestions] = useState(false);
   const [errorMessage, setErrorMessage] = useState('');
@@ -70,167 +28,121 @@ const UserDashboard = () => {
     method: "GET",
     headers: new Headers({
       "x-rapidapi-key": rapidApiKey,
-      "x-rapidapi-host": "map-geocoding.p.rapidapi.com",
+      "x-rapidapi-host": "google-map-places.p.rapidapi.com",  // Corrected host
       "Accept": "application/json"
     }),
     redirect: "follow"
   }), [rapidApiKey]);
 
+  // Updated geocode function with the correct API call
   const geocode = useCallback(async (latlng) => {
     try {
       const response = await fetch(
-        `https://map-geocoding.p.rapidapi.com/json?latlng=${latlng[0]},${latlng[1]}`,
+        `https://google-map-places.p.rapidapi.com/maps/api/geocode/json?latlng=${latlng[0]},${latlng[1]}&language=en&region=en&result_type=administrative_area_level_1&location_type=APPROXIMATE`,
         requestOptions
       );
-
-      if (!response.ok) {
-        throw new Error(`HTTP error! status: ${response.status}`);
+      const result = await response.json();
+      if (result?.results?.length > 0) {
+        setLocation(result.results[0].formatted_address);
       }
-
-      const data = await response.json();
-      return data.results || [];
     } catch (error) {
-      console.error('Error in geocoding:', error);
-      return [];
+      console.error("Error geocoding location:", error);
+      setErrorMessage("Failed to fetch location.");
     }
   }, [requestOptions]);
 
-  const { userLocation, loading: loadingLocation, error: locationError } = useUserLocation(geocode, setLocation, setLocationCoords);
+  const useUserLocation = (geocodeFn, setLocationFn, setLocationCoordsFn) => {
+    useEffect(() => {
+      if (navigator.geolocation) {
+        navigator.geolocation.getCurrentPosition(
+          (position) => {
+            const { latitude, longitude } = position.coords;
+            const latlng = [latitude, longitude];
+            setLocationCoordsFn(latlng);
+            geocodeFn(latlng);
+          },
+          (error) => {
+            console.error("Error fetching location:", error);
+            setLocationFn('Unable to fetch location.');
+          }
+        );
+      }
+    }, [geocodeFn, setLocationCoordsFn, setLocationFn]);
+  };
 
-  const fetchPlaceSuggestions = async (query) => {
-    setLoadingSuggestions(true);
+  useUserLocation(geocode, setLocation, setLocationCoords);
+
+  const handleSearchMechanics = async () => {
+    if (!locationCoords) {
+      setErrorMessage("Please allow location access to search for nearby mechanics.");
+      return;
+    }
+
     try {
       const response = await fetch(
-        `https://map-geocoding.p.rapidapi.com/json?address=${encodeURIComponent(query)}`,
-        requestOptions
-      );
-      const data = await response.json();
-      setSuggestions(data.results || []);
-    } catch (error) {
-      setErrorMessage('Error fetching location suggestions.');
-    } finally {
-      setLoadingSuggestions(false);
-    }
-  };
-
-  const handleInputChange = async (e, setter) => {
-    const value = e.target.value;
-    setter(value);
-    setActiveInput('location');
-    if (value.length > 2) {
-      await fetchPlaceSuggestions(value);
-    } else {
-      setSuggestions([]);
-    }
-  };
-
-  const handleSuggestionSelect = (place, setter, coordsSetter) => {
-    setter(place.formatted_address);
-    coordsSetter([place.geometry.location.lat, place.geometry.location.lng]);
-    setSuggestions([]);
-    setActiveInput('');
-  };
-
-  const MapClickHandler = () => {
-    useMapEvents({
-      click: async (e) => {
-        const { lat, lng } = e.latlng;
-        const locationName = await geocode([lat, lng]);
-
-        if (!locationCoords) {
-          setLocationCoords([lat, lng]);
-          setLocation(locationName.length > 0 ? locationName[0].formatted_address : 'Unknown Location');
+        `https://your-api-url/api/mechanics/search?lat=${locationCoords[0]}&lng=${locationCoords[1]}&vehicleType=${vehicleType}`,
+        {
+          method: 'GET',
+          headers: {
+            'Authorization': `Bearer ${localStorage.getItem('token')}`,
+          },
         }
-      },
-    });
-    return null;
-  };
+      );
 
-  const validateInputs = () => {
-    if (!location) {
-      setErrorMessage('Please provide a service location.');
-      return false;
-    }
-    return true;
-  };
-
-  const handleRequestMechanic = async () => {
-    const token = localStorage.getItem('token'); 
-    if (!token) {
-      setErrorMessage('You must be logged in to request a mechanic.');
-      return;
-    }
-  
-    if (!validateInputs()) {
-      return;
-    }
-  
-    try {
-      const decodedToken = jwtDecode(token);
-      const response = await fetch('http://localhost:8000/api/mechanic-request', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          'Authorization': `Bearer ${token}`
-        },
-        body: JSON.stringify({
-          location,
-          locationCoords,
-          vehicleType,  // Ensure vehicleType is passed as serviceType
-          serviceType: vehicleType,  // Add this line to fix the missing serviceType issue
-        }),
-      });
-  
       if (!response.ok) {
-        const errorResponse = await response.json();
-        throw new Error(errorResponse.message || 'Failed to create mechanic request');
+        throw new Error(`Error fetching mechanics: ${response.statusText}`);
       }
-  
+
       const data = await response.json();
-      alert('Mechanic request created successfully!');
+      setSuggestions(data.mechanics);
     } catch (error) {
-      setErrorMessage(`Error creating mechanic request: ${error.message || 'Please try again.'}`);
+      console.error("Error searching mechanics:", error);
+      setErrorMessage("Failed to search for mechanics.");
     }
   };
-  
+
+  useEffect(() => {
+    if (locationCoords) {
+      setMapCenter(locationCoords);
+    }
+  }, [locationCoords]);
 
   return (
-    <div className="dashboard">
-      <h2>Find a Mechanic</h2>
-      {loadingLocation && <p>Loading your location...</p>}
-      {locationError && <p className="error">{locationError}</p>}
-      {errorMessage && <p className="error">{errorMessage}</p>}
-      <div className="map-container">
-        <MapContainer center={mapCenter} zoom={13} style={{ width: '100%', height: '400px' }}>
-          <TileLayer
-            url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
-            attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
-          />
-          {userLocation && <Marker position={userLocation}><Popup>Your location</Popup></Marker>}
-          <MapClickHandler />
-        </MapContainer>
+    <div className="user-dashboard">
+      <h1>User Dashboard</h1>
+      <div className="search-section">
+        <label>
+          Location: {location || 'Fetching your location...'}
+          {errorMessage && <p style={{ color: 'red' }}>{errorMessage}</p>}
+        </label>
+        <label>
+          Vehicle Type:
+          <select value={vehicleType} onChange={(e) => setVehicleType(e.target.value)}>
+            <option value="Car">Car</option>
+            <option value="Motorcycle">Motorcycle</option>
+            <option value="Truck">Truck</option>
+          </select>
+        </label>
+        <button onClick={handleSearchMechanics} disabled={!locationCoords}>
+          Search Mechanics
+        </button>
+        {errorMessage && <p style={{ color: 'red' }}>{errorMessage}</p>}
       </div>
-      <input
-        type="text"
-        value={location}
-        onChange={(e) => handleInputChange(e, setLocation)}
-        placeholder="Enter service location"
-      />
-      {activeInput === 'location' && suggestions.length > 0 && (
-        <ul className="suggestions">
-          {suggestions.map((place, index) => (
-            <li key={index} onClick={() => handleSuggestionSelect(place, setLocation, setLocationCoords)}>
-              {place.formatted_address}
-            </li>
-          ))}
-        </ul>
-      )}
-      <select value={vehicleType} onChange={(e) => setVehicleType(e.target.value)}>
-        <option value="Car">Car</option>
-        <option value="Motorcycle">Motorcycle</option>
-        <option value="Truck">Truck</option>
-      </select>
-      <button onClick={handleRequestMechanic}>Request Mechanic</button>
+      
+      <MapContainer center={mapCenter} zoom={13} style={{ height: "400px", width: "100%" }}>
+        <TileLayer
+          url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
+          attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
+        />
+        {suggestions.map((mechanic) => (
+          <Marker key={mechanic._id} position={[mechanic.location.latitude, mechanic.location.longitude]}>
+            <Popup>{mechanic.name} - {mechanic.serviceType}</Popup>
+          </Marker>
+        ))}
+      </MapContainer>
+      
+      {loadingSuggestions && <p>Loading mechanics...</p>}
+      {suggestions.length === 0 && !loadingSuggestions && <p>No mechanics found nearby.</p>}
     </div>
   );
 };

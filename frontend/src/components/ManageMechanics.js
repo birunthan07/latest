@@ -7,10 +7,12 @@ function ManageMechanics() {
   const [error, setError] = useState(null);
   const [successMessage, setSuccessMessage] = useState('');
 
+  // Fetch the list of mechanics when the component loads
   useEffect(() => {
     fetchMechanics();
   }, []);
 
+  // Fetch mechanics function
   const fetchMechanics = async () => {
     try {
       const token = localStorage.getItem('token');
@@ -30,6 +32,7 @@ function ManageMechanics() {
     }
   };
 
+  // Approve or reject a mechanic
   const handleAction = async (action, mechanicId) => {
     try {
       setError(null);
@@ -38,8 +41,6 @@ function ManageMechanics() {
       if (!token) {
         throw new Error('No token found, please log in.');
       }
-
-      console.log(`Attempting ${action} for mechanic ${mechanicId}`);
 
       let response;
       if (action === 'delete') {
@@ -55,7 +56,6 @@ function ManageMechanics() {
         );
       }
 
-      console.log('Action response:', response.data);
       setSuccessMessage(response.data.msg);
       fetchMechanics(); // Refresh mechanic list
     } catch (err) {
@@ -64,45 +64,32 @@ function ManageMechanics() {
     }
   };
 
-  if (loading) return <p>Loading...</p>;
+  if (loading) return <p>Loading mechanics...</p>;
 
   return (
     <div style={{ padding: '1rem' }}>
-      <h2 style={{ fontSize: '1.5rem', fontWeight: 'bold', marginBottom: '1rem' }}>Manage Mechanics</h2>
-      {error && <p style={{ color: 'red', marginBottom: '1rem' }}>{error}</p>}
-      {successMessage && (
-        <p style={{
-          backgroundColor: '#d4edda', border: '1px solid #c3e6cb', color: '#155724',
-          padding: '0.75rem', borderRadius: '0.25rem', marginBottom: '1rem'
-        }}>
-          {successMessage}
-        </p>
-      )}
-      <ul style={{ listStyleType: 'none', padding: 0 }}>
+      <h2>Manage Mechanics</h2>
+      {error && <p style={{ color: 'red' }}>{error}</p>}
+      {successMessage && <p style={{ color: 'green' }}>{successMessage}</p>}
+      
+      <ul>
         {mechanics.length ? (
           mechanics.map((mechanic) => (
-            <li key={mechanic._id} style={{
-              border: '1px solid #ccc', padding: '1rem', marginBottom: '1rem',
-              borderRadius: '0.25rem'
-            }}>
-              <p style={{ fontWeight: 'bold' }}>{mechanic.name} ({mechanic.email})</p>
-              <p>Vehicle Type: {mechanic.vehicleType || 'N/A'}</p>
-              <p>License Number: {mechanic.licenseNumber || 'N/A'}</p>
-              <p>Documents: {Array.isArray(mechanic.verificationCertificate) ? mechanic.verificationCertificate.join(', ') : 'None'}</p>
+            <li key={mechanic._id} style={{ marginBottom: '1rem', padding: '1rem', border: '1px solid #ddd' }}>
+              <p><strong>{mechanic.name}</strong> ({mechanic.email})</p>
               <p>Status: {mechanic.isApproved ? 'Approved' : 'Pending'}</p>
-              <p>Created At: {new Date(mechanic.createdAt).toLocaleString()}</p>
-              <div style={{ marginTop: '0.5rem' }}>
-                <button onClick={() => handleAction(mechanic.isApproved ? 'reject' : 'approve', mechanic._id)} style={{ marginRight: '0.5rem' }}>
+              <div>
+                <button onClick={() => handleAction(mechanic.isApproved ? 'reject' : 'approve', mechanic._id)}>
                   {mechanic.isApproved ? 'Reject' : 'Approve'}
                 </button>
-                <button onClick={() => handleAction('delete', mechanic._id)} style={{ backgroundColor: '#dc3545', color: 'white' }}>
+                <button onClick={() => handleAction('delete', mechanic._id)} style={{ marginLeft: '1rem', backgroundColor: '#f44336', color: 'white' }}>
                   Delete
                 </button>
               </div>
             </li>
           ))
         ) : (
-          <p>No mechanics found.</p>
+          <p>No mechanics found</p>
         )}
       </ul>
     </div>

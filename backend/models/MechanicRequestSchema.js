@@ -1,35 +1,34 @@
-const mongoose = require('mongoose');
 
-const mechanicRequestSchema = new mongoose.Schema({
-  location: {
-    address: String,
-    coordinates: {
-      type: [Number],  // [longitude, latitude]
-      index: '2dsphere'  // Allows for geospatial queries
+
+const express = require('express');
+const router = express.Router();
+const MechanicRequest = require('../models/MechanicRequestSchema');
+const authMiddleware = require('../middleware/authMiddleware');
+
+router.post('/', authMiddleware, async (req, res) => {
+  try {
+    const { location, serviceType, numPassengers } = req.body;
+
+    if (!req.user || !req.user._id) {
+      return res.status(401).json({ message: 'User not authenticated' });
     }
-  },
-  serviceType: {
-    type: String,
-    required: true  // Assuming a service type is required for mechanic requests
-  },
-  additionalNotes: {
-    type: String,
-    default: ''  // Optional field for any extra information
-  },
-  userId: {
-    type: mongoose.Schema.Types.ObjectId,
-    ref: 'User',  // Reference to the user making the request
-    required: true
-  },
-  createdAt: {
-    type: Date,
-    default: Date.now
-  },
-  status: {
-    type: String,
-    enum: ['pending', 'in-progress', 'completed', 'canceled'],  // Possible statuses for the request
-    default: 'pending'
+
+    const newMechanicRequest = new MechanicRequest({
+      location: {
+        address: location,
+        coordinates: req.body.locationCoords,
+      },
+      serviceType,
+      numPassengers,
+      userId: req.user._id,
+    });
+
+    await newMechanicRequest.save();
+    res.status(201).json({ message: 'Mechanic request created successfully', mechanicRequest: newMechanicRequest });
+  } catch (error) {
+    console.error('Error creating mechanic request:', error);
+    res.status(500).json({ message: 'Error creating mechanic request' });
   }
 });
 
-module.exports = mongoose.model('MechanicRequest', mechanicRequestSchema);
+module.exports = router;
