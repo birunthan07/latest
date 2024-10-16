@@ -1,9 +1,13 @@
+
+
 import React, { useState, useEffect, useCallback, useMemo } from 'react';
 import { MapContainer, TileLayer, Marker, Popup } from 'react-leaflet';
 import L from 'leaflet';
 import axios from 'axios';
 import jwtDecode from 'jwt-decode';
-import config from '../config';  // Import the config file
+import config from '../config';
+import 'leaflet/dist/leaflet.css';
+  // Import Leaflet CSS
 
 // Fix for default marker icon issue with Leaflet and Webpack
 delete L.Icon.Default.prototype._getIconUrl;
@@ -16,7 +20,7 @@ L.Icon.Default.mergeOptions({
 const UserDashboard = () => {
   const [location, setLocation] = useState('');
   const [locationCoords, setLocationCoords] = useState(null);
-  const [mapCenter, setMapCenter] = useState([9.6615, 80.0255]);
+  const [mapCenter, setMapCenter] = useState([9.6615, 80.0255]);  // Default center
   const [suggestions, setSuggestions] = useState([]);
   const [vehicleType, setVehicleType] = useState('Car');
   const [loadingSuggestions, setLoadingSuggestions] = useState(false);
@@ -28,17 +32,16 @@ const UserDashboard = () => {
     method: "GET",
     headers: new Headers({
       "x-rapidapi-key": rapidApiKey,
-      "x-rapidapi-host": "google-map-places.p.rapidapi.com",  // Corrected host
+      "x-rapidapi-host": "google-map-places.p.rapidapi.com",
       "Accept": "application/json"
     }),
     redirect: "follow"
   }), [rapidApiKey]);
 
-  // Updated geocode function with the correct API call
   const geocode = useCallback(async (latlng) => {
     try {
       const response = await fetch(
-        `https://google-map-places.p.rapidapi.com/maps/api/geocode/json?latlng=${latlng[0]},${latlng[1]}&language=en&region=en&result_type=administrative_area_level_1&location_type=APPROXIMATE`,
+        `https://google-map-places.p.rapidapi.com/maps/api/geocode/json?latlng=${latlng[0]},${latlng[1]}&language=en&region=en`,
         requestOptions
       );
       const result = await response.json();
@@ -128,19 +131,21 @@ const UserDashboard = () => {
         </button>
         {errorMessage && <p style={{ color: 'red' }}>{errorMessage}</p>}
       </div>
-      
-      <MapContainer center={mapCenter} zoom={13} style={{ height: "400px", width: "100%" }}>
-        <TileLayer
-          url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
-          attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
-        />
-        {suggestions.map((mechanic) => (
-          <Marker key={mechanic._id} position={[mechanic.location.latitude, mechanic.location.longitude]}>
-            <Popup>{mechanic.name} - {mechanic.serviceType}</Popup>
-          </Marker>
-        ))}
-      </MapContainer>
-      
+
+      <div className="map-container" style={{ height: "400px", width: "100%" }}>
+        <MapContainer center={mapCenter} zoom={13} style={{ height: "100%", width: "100%" }}>
+          <TileLayer
+            url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
+            attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
+          />
+          {suggestions.map((mechanic) => (
+            <Marker key={mechanic._id} position={[mechanic.location.latitude, mechanic.location.longitude]}>
+              <Popup>{mechanic.name} - {mechanic.serviceType}</Popup>
+            </Marker>
+          ))}
+        </MapContainer>
+      </div>
+
       {loadingSuggestions && <p>Loading mechanics...</p>}
       {suggestions.length === 0 && !loadingSuggestions && <p>No mechanics found nearby.</p>}
     </div>

@@ -3,7 +3,7 @@
 const express = require('express');
 const router = express.Router();
 const User = require('../models/userModel');
-const Mechanic = require('../models/mechanicModel');
+const Mechanic = require('../models/ mechanicmodel.js');
 const authMiddleware = require('../middleware/authMiddleware');
 const bcrypt = require('bcryptjs');
 
