@@ -3,7 +3,7 @@
 import React, { useState } from 'react';
 import axios from 'axios';
 import { Link, useNavigate } from 'react-router-dom';
-import '/home/uki-jaffna/Documents/mechanic/frontend/src/css/LoginPage.css';
+import '/home/uki-jaffna/latest/frontend/src/css/LoginPage.css';
 import { jwtDecode } from 'jwt-decode';
 
 function LoginForm() {

@@ -3,7 +3,7 @@
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 import { Link } from 'react-router-dom';
-import '/home/uki-jaffna/Documents/mechanic/frontend/src/css/AdminDashboard.css';
+import '/home/uki-jaffna/latest/frontend/src/css/AdminDashboard.css';
 import PackageManagement from './PackageManagement'; // Import the PackageManagement component
 
 const AdminDashboard = () => {

@@ -8,7 +8,7 @@ const path = require('path');
 const fs = require('fs');
 const jwt = require('jsonwebtoken');
 const bcrypt = require('bcryptjs');
-const Mechanic = require('../models/ mechanicmodel'); // Updated to use the Mechanic model
+const Mechanic = require('./ mechanicmodel'); // Updated to use the Mechanic model
 const authMiddleware = require('../middleware/authMiddleware');
 
 

@@ -2,7 +2,7 @@
 import React, { useState } from 'react';
 import axios from 'axios';
 import { Link, useNavigate } from 'react-router-dom';
-import '/home/uki-jaffna/Documents/mechanic/frontend/src/css/MechanicLoginForm.css';
+import '/home/uki-jaffna/latest/frontend/src/css/MechanicLoginForm.css';
 
 function MechanicLoginForm() {
   const [formData, setFormData] = useState({

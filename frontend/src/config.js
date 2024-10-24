@@ -1,6 +1,6 @@
 // src/config.js
 const config = {
-    RAPIDAPI_KEY: 'c0dad4acbcmshab04cbb39606fd6p1ebe1ejsn05362290914a',
+    RAPIDAPI_KEY: '35ed94112cmsh08cedf9011b0991p130d68jsna40308023ce0',
   };
   
   export default config;
