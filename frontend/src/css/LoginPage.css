@@ -1,4 +1,4 @@
-/* FormStyle.css */
+
 
 :root {
   --primary-color: #1e90ff;
@@ -11,12 +11,6 @@
   --border-radius: 10px;
 }
 
-body {
-  font-family: 'Roboto', sans-serif;
-  background-color: var(--background-color);
-  margin: 0;
-  padding: 0;
-}
 
 .container {
   display: flex;

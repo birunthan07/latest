@@ -75,19 +75,34 @@ router.patch('/user/:id', adminCheck, async (req, res) => {
 });
 
 // PATCH /api/admin/user/:id/activate - Activate a user (requires admin role)
-router.patch('/user/:id/activate', adminCheck, async (req, res) => {
-    try {
-        const user = await User.findById(req.params.id);
-        if (!user) return res.status(404).json({ msg: 'User not found' });
+// router.patch('/user/:id/activate', adminCheck, async (req, res) => {
+//     try {
+//         const user = await User.findById(req.params.id);
+//         if (!user) return res.status(404).json({ msg: 'User not found' });
 
-        user.isActive = true;
-        await user.save();
-        res.json({ msg: 'User activated successfully', user });
+//         user.isActive = true;
+//         await user.save();
+//         res.json({ msg: 'User activated successfully', user });
+//     } catch (err) {
+//         console.error('Error activating user:', err.message);
+//         res.status(500).json({ msg: 'Server error' });
+//     }
+// });
+
+router.patch('/mechanic/:id/activate', adminCheck, async (req, res) => {
+    try {
+        const mechanic = await Mechanic.findById(req.params.id);
+        if (!mechanic) return res.status(404).json({ msg: 'Mechanic not found' });
+
+        mechanic.isActive = true; 
+        await mechanic.save();
+        res.json({ msg: 'Mechanic activated successfully', mechanic });
     } catch (err) {
-        console.error('Error activating user:', err.message);
+        console.error('Error activating mechanic:', err.message);
         res.status(500).json({ msg: 'Server error' });
     }
 });
+
 
 // PATCH /api/admin/user/:id/deactivate - Deactivate a user (requires admin role)
 router.patch('/user/:id/deactivate', adminCheck, async (req, res) => {

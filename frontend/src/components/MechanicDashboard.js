@@ -100,15 +100,18 @@
 
 
 import React, { useState, useEffect } from 'react';
-import CompletedRepairs from './CompletedRepairs';
-import MechanicRequests from './MechanicRequests';
-import PaymentInfo from './PaymentInfo';
 import axios from 'axios';
 import { io } from 'socket.io-client';
+import { FaToggleOn, FaToggleOff, FaMapMarkerAlt, FaTools, FaClipboardList, FaMoneyBillWave, FaBox } from 'react-icons/fa';
 
-const socket = io('http://localhost:8000');  // Match with the backend port
+const socket = io('http://localhost:8000');
 
-const MechanicDashboard = () => {
+// Placeholder components - replace these with your actual components
+const CompletedRepairs = () => <div>Completed Repairs Component</div>;
+const MechanicRequests = () => <div>Mechanic Requests Component</div>;
+const PaymentInfo = () => <div>Payment Info Component</div>;
+
+export default function MechanicDashboard() {
   const [isAvailable, setIsAvailable] = useState(false);
   const [location, setLocation] = useState({ latitude: null, longitude: null });
   const [locationError, setLocationError] = useState('');
@@ -143,17 +146,34 @@ const MechanicDashboard = () => {
     }
   };
 
+  // const updateMechanicStatus = async (latitude, longitude, availability) => {
+  //   try {
+  //     await axios.post('http://localhost:8000/api/mechanic-request', {
+  //       latitude,
+  //       longitude,
+  //       availability,
+  //     });
+  //   } catch (error) {
+  //     console.error('Error updating mechanic status:', error);
+  //   }
+  // };
+
   const updateMechanicStatus = async (latitude, longitude, availability) => {
     try {
-      await axios.post('http://localhost:8000/api/mechanic/status', {
-        latitude,
-        longitude,
-        availability,
-      });
+      const token = localStorage.getItem('token'); // Retrieve the token
+      await axios.post('http://localhost:8000/api/mechanic-request', 
+        { latitude, longitude, availability },
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        }
+      );
     } catch (error) {
       console.error('Error updating mechanic status:', error);
     }
   };
+  
 
   useEffect(() => {
     socket.on('connect', () => {
@@ -169,30 +189,145 @@ const MechanicDashboard = () => {
     };
   }, []);
 
+  const styles = {
+    container: {
+      maxWidth: '1200px',
+      margin: '0 auto',
+      padding: '20px',
+      fontFamily: 'Arial, sans-serif',
+      backgroundColor: '#f0f4f8',
+      borderRadius: '10px',
+      boxShadow: '0 4px 6px rgba(0, 0, 0, 0.1)',
+    },
+    header: {
+      fontSize: '2.5rem',
+      color: '#2c3e50',
+      textAlign: 'center',
+      marginBottom: '30px',
+    },
+    button: {
+      backgroundColor: isAvailable ? '#e74c3c' : '#2ecc71',
+      color: 'white',
+      border: 'none',
+      padding: '10px 20px',
+      fontSize: '1rem',
+      borderRadius: '5px',
+      cursor: 'pointer',
+      display: 'flex',
+      alignItems: 'center',
+      justifyContent: 'center',
+      transition: 'background-color 0.3s ease',
+    },
+    buttonIcon: {
+      marginRight: '10px',
+    },
+    locationError: {
+      color: '#e74c3c',
+      marginTop: '10px',
+    },
+    locationInfo: {
+      backgroundColor: '#3498db',
+      color: 'white',
+      padding: '10px',
+      borderRadius: '5px',
+      marginTop: '10px',
+    },
+    section: {
+      backgroundColor: 'white',
+      padding: '20px',
+      borderRadius: '8px',
+      marginTop: '20px',
+      boxShadow: '0 2px 4px rgba(0, 0, 0, 0.1)',
+    },
+    sectionTitle: {
+      fontSize: '1.5rem',
+      color: '#34495e',
+      marginBottom: '15px',
+      display: 'flex',
+      alignItems: 'center',
+    },
+    sectionIcon: {
+      marginRight: '10px',
+      color: '#3498db',
+    },
+    packageList: {
+      listStyle: 'none',
+      padding: 0,
+    },
+    packageItem: {
+      backgroundColor: '#ecf0f1',
+      padding: '15px',
+      borderRadius: '5px',
+      marginBottom: '10px',
+      display: 'flex',
+      justifyContent: 'space-between',
+      alignItems: 'center',
+    },
+    packageName: {
+      fontWeight: 'bold',
+      color: '#2c3e50',
+    },
+    packageDescription: {
+      color: '#7f8c8d',
+    },
+    packagePrice: {
+      color: '#27ae60',
+      fontWeight: 'bold',
+    },
+  };
+
   return (
-    <div>
-      <h1>Mechanic Dashboard</h1>
-      <button onClick={toggleAvailability}>
+    <div style={styles.container}>
+      <h1 style={styles.header}>Mechanic Dashboard</h1>
+      <button onClick={toggleAvailability} style={styles.button}>
+        {isAvailable ? <FaToggleOn style={styles.buttonIcon} /> : <FaToggleOff style={styles.buttonIcon} />}
         {isAvailable ? 'Set as Unavailable' : 'Set as Available'}
       </button>
-      {locationError && <p style={{ color: 'red' }}>{locationError}</p>}
+      {locationError && <p style={styles.locationError}>{locationError}</p>}
       {isAvailable && location.latitude && location.longitude && (
-        <p>Current Location: Latitude {location.latitude}, Longitude {location.longitude}</p>
+        <p style={styles.locationInfo}>
+          <FaMapMarkerAlt /> Current Location: Latitude {location.latitude}, Longitude {location.longitude}
+        </p>
       )}
-      <CompletedRepairs />
-      <MechanicRequests />
-      <PaymentInfo />
+      
+      <div style={styles.section}>
+        <h2 style={styles.sectionTitle}>
+          <FaTools style={styles.sectionIcon} /> Completed Repairs
+        </h2>
+        <CompletedRepairs />
+      </div>
+      
+      <div style={styles.section}>
+        <h2 style={styles.sectionTitle}>
+          <FaClipboardList style={styles.sectionIcon} /> Mechanic Requests
+        </h2>
+        <MechanicRequests />
+        <button>mechanic request</button>
+      </div>
+      
+      <div style={styles.section}>
+        <h2 style={styles.sectionTitle}>
+          <FaMoneyBillWave style={styles.sectionIcon} /> Payment Information
+        </h2>
+        <PaymentInfo />
+      </div>
 
-      <h3>Available Packages</h3>
-      <ul>
-        {packages.map(pkg => (
-          <li key={pkg._id}>
-            <strong>{pkg.name}</strong>: {pkg.description} - ${pkg.price}
-          </li>
-        ))}
-      </ul>
+      <div style={styles.section}>
+        <h2 style={styles.sectionTitle}>
+          <FaBox style={styles.sectionIcon} /> Available Packages
+        </h2>
+        <ul style={styles.packageList}>
+          {packages.map(pkg => (
+            <li key={pkg._id} style={styles.packageItem}>
+              <div>
+                <span style={styles.packageName}>{pkg.name}</span>
+                <p style={styles.packageDescription}>{pkg.description}</p>
+              </div>
+              <span style={styles.packagePrice}>${pkg.price}</span>
+            </li>
+          ))}
+        </ul>
+      </div>
     </div>
   );
-};
-
-export default MechanicDashboard;
+}

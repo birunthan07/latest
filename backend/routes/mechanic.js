@@ -8,11 +8,8 @@ const path = require('path');
 const fs = require('fs');
 const jwt = require('jsonwebtoken');
 const bcrypt = require('bcryptjs');
-const Mechanic = require('./ mechanicmodel'); // Updated to use the Mechanic model
+const Mechanic = require('../models/ mechanicmodel'); // Updated to use the Mechanic model
 const authMiddleware = require('../middleware/authMiddleware');
-
-
-
 
 
 
@@ -125,6 +122,34 @@ router.post('/login', async (req, res) => {
     } catch (err) {
         console.error(err.message);
         res.status(500).send('Server error');
+    }
+});
+
+// GET /api/mechanics/search?lat={latitude}&lng={longitude}&vehicleType={type}
+router.get('/search', async (req, res) => {
+    try {
+        const { lat, lng, vehicleType } = req.query;
+        
+        // Validate required parameters
+        if (!lat || !lng || !vehicleType) {
+            return res.status(400).json({ error: 'Missing required query parameters' });
+        }
+
+        // Fetch mechanics based on location and vehicle type
+        const mechanics = await Mechanic.find({
+            location: {
+                $near: {
+                    $geometry: { type: "Point", coordinates: [parseFloat(lng), parseFloat(lat)] },
+                    $maxDistance: 10000 // distance in meters (e.g., 10 km)
+                }
+            },
+            vehicleTypesServiced: vehicleType // assuming the mechanic model has this field
+        });
+
+        res.json(mechanics);
+    } catch (error) {
+        console.error('Error fetching mechanics:', error);
+        res.status(500).json({ error: 'Server error' });
     }
 });
 

@@ -2,7 +2,7 @@
 
 const express = require('express');
 const router = express.Router();
-const MechanicRequest = require('/home/uki-jaffna/Documents/mechanic/backend/models/MechanicRequestSchema.js');
+const MechanicRequest = require('../models/MechanicRequestmodel.js');
 const authMiddleware = require('/home/uki-jaffna/Documents/mechanic/backend/middleware/authMiddleware.js');
 
 router.post('/', authMiddleware, async (req, res) => {

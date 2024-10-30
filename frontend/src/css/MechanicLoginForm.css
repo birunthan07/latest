@@ -1,10 +1,4 @@
-/* General Styling */
-body {
-  background-color: #f3f4f6; /* Light grey background */
-  font-family: 'Roboto', sans-serif;
-}
-
-/* Container Styling */
+/* 
 .container {
   display: flex;
   justify-content: center;
@@ -12,9 +6,9 @@ body {
   min-height: 100vh;
 }
 
-/* Form Container */
+
 .form-container {
-  background: linear-gradient(145deg, #ffffff, #f0f0f0); /* Soft gradient */
+  background: linear-gradient(145deg, #ffffff, #f0f0f0); 
   border-radius: 15px;
   box-shadow: 0 10px 20px rgba(0, 0, 0, 0.1);
   padding: 3rem;
@@ -27,16 +21,16 @@ body {
   box-shadow: 0 15px 25px rgba(0, 0, 0, 0.2);
 }
 
-/* Heading Styling */
+
 h2 {
-  color: #d9534f; /* Dark Red */
+  color: #d9534f;
   font-size: 1.8rem;
   font-weight: bold;
   margin-bottom: 2rem;
   text-align: center;
 }
 
-/* Input Fields */
+
 .form-group input {
   width: 100%;
   padding: 1rem;
@@ -53,9 +47,9 @@ h2 {
   outline: none;
 }
 
-/* Button Styling */
+
 .btn {
-  background-color: #d9534f; /* Dark Red */
+  background-color: #d9534f;
   color: #fff;
   padding: 0.75rem;
   border: none;
@@ -67,11 +61,11 @@ h2 {
 }
 
 .btn:hover {
-  background-color: #c9302c; /* Darker Red */
+  background-color: #c9302c;
   box-shadow: 0 5px 15px rgba(217, 83, 79, 0.4);
 }
 
-/* Text Links */
+
 .text-orange {
   color: #ff8c00;
   font-weight: bold;
@@ -79,10 +73,10 @@ h2 {
 }
 
 .text-orange:hover {
-  color: #e67e22; /* Darker orange */
+  color: #e67e22; 
 }
 
-/* Success and Error Messages */
+
 .text-success {
   color: #28a745;
   font-weight: bold;
@@ -95,7 +89,6 @@ h2 {
   margin-top: 1rem;
 }
 
-/* Responsive Styling */
 @media (max-width: 576px) {
   .form-container {
       width: 90%;
@@ -105,4 +98,4 @@ h2 {
   h2 {
       font-size: 1.5rem;
   }
-}
+} */

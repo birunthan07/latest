@@ -16,13 +16,14 @@ import MechanicDashboard from './components/MechanicDashboard';
 import CompletedRepairs from './components/CompletedRepairs';
 import MechanicRequests from './components/MechanicRequests';
 import PaymentPage from './components/PaymentPage.js';
-
+import ContactForm from './components/contact.js';
 function App() {
   return (
     <Router>
       <div className="App">
         <Routes>
           <Route path="/" element={<LandingPage />} />
+          <Route path="/contact" element={<ContactForm />} />
           <Route path="/register" element={<RegisterForm />} />
           <Route path="/login" element={<LoginForm />} />
           <Route path="/mechanic-register" element={<MechanicRegisterForm />} />

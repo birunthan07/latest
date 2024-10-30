@@ -1,4 +1,4 @@
-/* MechanicDashboard.css */
+/* 
 
 :root {
   --primary-color: #1e90ff;
@@ -12,12 +12,7 @@
   --border-radius: 10px;
 }
 
-body {
-  font-family: 'Roboto', sans-serif;
-  background-color: var(--background-color);
-  margin: 0;
-  padding: 0;
-}
+
 
 .dashboard-container {
   width: 90%;
@@ -105,7 +100,6 @@ h2 {
   margin-top: 2rem;
 }
 
-/* Responsive Styling */
 @media (max-width: 768px) {
   .dashboard-container {
     width: 95%;
@@ -125,4 +119,4 @@ h2 {
   h2 {
     font-size: 1.25rem;
   }
-}
+} */

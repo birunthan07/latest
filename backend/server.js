@@ -114,7 +114,7 @@ const bodyParser = require('body-parser');
 
 // Import routes
 const authRoutes = require('./routes/auth');
-// const mechanicRoutes = require('./routes/');
+const mechanicRoutes = require('./routes/mechanic');
 const adminRoutes = require('./routes/admin');
 const mechanicRequestRouter = require('./routes/MechanicRequestSchema');
 const paymentRoutes = require('./routes/payment');

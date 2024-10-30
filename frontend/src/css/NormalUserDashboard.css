@@ -1,4 +1,4 @@
-.dashboard {
+/* .dashboard {
   font-family: 'Arial', sans-serif;
   max-width: 800px;
   margin: 20px auto;
@@ -52,7 +52,7 @@
 }
 
 .input-group input[type="number"] {
-  -moz-appearance: textfield; /* Remove arrow in Firefox */
+  -moz-appearance: textfield; 
 }
 
 .input-group input[type="number"]::-webkit-inner-spin-button,
@@ -104,4 +104,4 @@ button:hover {
   color: #d9534f;
   text-align: center;
   margin-bottom: 15px;
-}
+} */
