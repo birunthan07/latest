@@ -20,7 +20,6 @@ router.post('/', authMiddleware, async (req, res) => {
         coordinates: locationCoords,
       },
       serviceType,
-      numPassengers,
       userId: req.user._id,
     });
 

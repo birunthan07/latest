@@ -99,6 +99,8 @@
 // export default MechanicDashboard;
 
 
+
+
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 import { io } from 'socket.io-client';
@@ -146,17 +148,6 @@ export default function MechanicDashboard() {
     }
   };
 
-  // const updateMechanicStatus = async (latitude, longitude, availability) => {
-  //   try {
-  //     await axios.post('http://localhost:8000/api/mechanic-request', {
-  //       latitude,
-  //       longitude,
-  //       availability,
-  //     });
-  //   } catch (error) {
-  //     console.error('Error updating mechanic status:', error);
-  //   }
-  // };
 
   const updateMechanicStatus = async (latitude, longitude, availability) => {
     try {

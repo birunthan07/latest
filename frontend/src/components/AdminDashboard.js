@@ -172,7 +172,7 @@ const AdminDashboard = () => {
             <FaTachometerAlt style={styles.navIcon} /> Dashboard
           </Link>
           <Link
-            to="/admin-users"
+            to="/admin-mechanics"
             style={{...styles.navItem, ...(activeTab === 'mechanics' ? styles.activeNavItem : {})}}
             onClick={() => setActiveTab('mechanics')}
           >

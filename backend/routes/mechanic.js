@@ -4,7 +4,6 @@ const express = require('express');
 const router = express.Router();
 const multer = require('multer');
 const path = require('path');
-// const sendEmail = require('../utils/email');
 const fs = require('fs');
 const jwt = require('jsonwebtoken');
 const bcrypt = require('bcryptjs');
@@ -124,6 +123,68 @@ router.post('/login', async (req, res) => {
         res.status(500).send('Server error');
     }
 });
+
+// Get all users (mechanics)
+router.get('/mechanics', async (req, res) => {
+    try {
+        const users = await Mechanic.find(); // Use the Mechanic model or User model as appropriate
+        res.status(200).json(users);
+    } catch (error) {
+        console.error('Error fetching users:', error);
+        res.status(500).json({ message: 'Error retrieving users. Please try again.' });
+    }
+});
+
+// Get a single user by ID
+router.get('/mechanics/:id', async (req, res) => {
+    try {
+        const user = await Mechanic.findById(req.params.id); // Use Mechanic model to find by ID
+        if (!user) {
+            return res.status(404).json({ msg: 'User not found' });
+        }
+        res.status(200).json(user); // Return the user data
+    } catch (error) {
+        console.error('Error fetching user:', error);
+        res.status(500).json({ message: 'Error retrieving user. Please try again.' });
+    }
+});
+
+// Update a mechanic by ID
+router.put('/mechanics/:id', async (req, res) => {
+    const { username, email, password, vehicleType } = req.body;
+    const updates = { username, email, password, vehicleType };
+
+    try {
+        const mechanic = await Mechanic.findByIdAndUpdate(req.params.id, updates, { new: true, runValidators: true }); // Update and return the new document
+        if (!mechanic) {
+            return res.status(404).json({ msg: 'Mechanic not found' });
+        }
+        res.status(200).json(mechanic); // Return the updated mechanic data
+    } catch (error) {
+        console.error('Error updating mechanic:', error);
+        if (error.name === 'ValidationError') {
+            const errors = Object.values(error.errors).map(err => err.message);
+            return res.status(400).json({ errors });
+        }
+        res.status(500).json({ message: 'Error updating mechanic. Please try again.' });
+    }
+});
+
+// Block a mechanic by ID
+router.put('/mechanics/:id/block', async (req, res) => {
+    try {
+        const mechanic = await Mechanic.findByIdAndUpdate(req.params.id, { isBlocked: true }, { new: true }); // Update to block the mechanic
+        if (!mechanic) {
+            return res.status(404).json({ msg: 'Mechanic not found' });
+        }
+        res.status(200).json({ msg: 'Mechanic blocked successfully', mechanic });
+    } catch (error) {
+        console.error('Error blocking mechanic:', error);
+        res.status(500).json({ message: 'Error blocking mechanic. Please try again.' });
+    }
+});
+
+
 
 // GET /api/mechanics/search?lat={latitude}&lng={longitude}&vehicleType={type}
 router.get('/search', async (req, res) => {
