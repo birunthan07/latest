@@ -1,5 +1,6 @@
 
 
+<<<<<<< HEAD
 // // const express = require('express');
 // // const mongoose = require('mongoose');
 // // const cors = require('cors');
@@ -206,6 +207,8 @@
 // });
 
 
+=======
+>>>>>>> cf94cd5 (db)
 const express = require('express');
 const mongoose = require('mongoose');
 const cors = require('cors');
@@ -262,7 +265,7 @@ connectWithRetry();
 app.use('/api/auth', authRoutes);
 app.use('/api/mechanic', mechanicRoutes);
 app.use('/api/admin', adminRoutes);
-app.use('/api/mechanic-request', mechanicRequestRouter);
+app.use('/api/service-request', mechanicRequestRouter);
 app.use('/api/payment', paymentRoutes);
 app.use('/api/packages', packageRoutes);
 

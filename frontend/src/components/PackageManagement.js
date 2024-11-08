@@ -8,7 +8,7 @@ const PackageManagement = () => {
 
   // Fetch existing packages on component mount
   useEffect(() => {
-    axios.get('http://localhost:8000/api/packages')
+    axios.get('http://localhost:5000/api/packages')
       .then(response => setPackages(response.data))
       .catch(error => console.error('Error fetching packages:', error));
   }, []);
@@ -19,7 +19,7 @@ const PackageManagement = () => {
   };
 
   const addPackage = () => {
-    axios.post('http://localhost:8000/api/packages', newPackage)
+    axios.post('http://localhost:5000/api/packages', newPackage)
       .then(response => {
         setPackages([...packages, response.data]);
         setNewPackage({ name: '', description: '', price: 0 });

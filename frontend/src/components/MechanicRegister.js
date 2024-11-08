@@ -327,7 +327,7 @@ export default function MechanicRegisterForm() {
     });
 
     try {
-      const response = await axios.post('http://localhost:8000/api/mechanic/register', formDataToSend, {
+      const response = await axios.post('http://localhost:5000/api/mechanic/register', formDataToSend, {
         headers: { 'Content-Type': 'multipart/form-data' },
       });
       console.log('Mechanic Registration Successful:', response.data);

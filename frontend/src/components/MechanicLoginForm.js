@@ -37,7 +37,7 @@ export default function MechanicLoginForm() {
     }
 
     try {
-      const response = await axios.post('http://localhost:8000/api/mechanic/login', formData);
+      const response = await axios.post('http://localhost:5000/api/mechanic/login', formData);
       setSuccessMessage('Login successful!');
       setFormData({ email: '', password: '' });
       setErrors({});

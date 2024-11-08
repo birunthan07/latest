@@ -6,7 +6,7 @@ const User = require('../models/userModel');
 const Mechanic = require('../models/ mechanicmodel.js');
 const authMiddleware = require('../middleware/authMiddleware');
 const bcrypt = require('bcryptjs');
-
+// const ServiceRequest = require('../models/ServiceRequest');
 // Apply authMiddleware to all routes
 router.use(authMiddleware);
 
@@ -29,31 +29,10 @@ router.get('/users', adminCheck, async (req, res) => {
     }
 });
 
-// GET /api/admin/mechanics - Fetch all mechanics (admin only)
-router.get('/mechanics', adminCheck, async (req, res) => {
-    try {
-        const mechanics = await Mechanic.find().select('-password');
-        res.json(mechanics);
-    } catch (err) {
-        console.error(err.message);
-        res.status(500).send('Server error');
-    }
-});
 
-
-// GET /api/admin/users - Fetch all users (requires admin role)
-router.get('/users', adminCheck, async (req, res) => {
-    try {
-        const users = await User.find().select('-password');
-        res.json({ users });
-    } catch (err) {
-        console.error('Error fetching users:', err.message);
-        res.status(500).json({ msg: 'Server error' });
-    }
-});
 
 // PATCH /api/admin/user/:id - Update user details (requires admin role)
-router.patch('/user/:id', adminCheck, async (req, res) => {
+router.patch('/users/:id', adminCheck, async (req, res) => {
     const { username, email, password, role } = req.body;
 
     try {
@@ -74,20 +53,107 @@ router.patch('/user/:id', adminCheck, async (req, res) => {
     }
 });
 
-// PATCH /api/admin/user/:id/activate - Activate a user (requires admin role)
-// router.patch('/user/:id/activate', adminCheck, async (req, res) => {
-//     try {
-//         const user = await User.findById(req.params.id);
-//         if (!user) return res.status(404).json({ msg: 'User not found' });
+router.patch('/users/:id/activate', adminCheck, async (req, res) => {
+    try {
+        const user = await User.findById(req.params.id);
 
-//         user.isActive = true;
-//         await user.save();
-//         res.json({ msg: 'User activated successfully', user });
-//     } catch (err) {
-//         console.error('Error activating user:', err.message);
-//         res.status(500).json({ msg: 'Server error' });
-//     }
-// });
+        if (!user) {
+            return res.status(404).json({ msg: 'User not found' });
+        }
+
+        user.isActive = true;
+        await user.save();
+        res.json({ msg: 'User activated', user });
+    } catch (err) {
+        console.error(err.message);
+        res.status(500).send('Server error');
+    }
+});
+
+// PATCH /api/admin/user/:id/deactivate - Deactivate a user (requires admin role)
+router.patch('/users/:id/deactivate', adminCheck, async (req, res) => {
+    try {
+        const user = await User.findById(req.params.id);
+        if (!user) return res.status(404).json({ msg: 'User not found' });
+
+        user.isActive = false;
+        await user.save();
+        res.json({ msg: 'User deactivated successfully', user });
+    } catch (err) {
+        console.error('Error deactivating user:', err.message);
+        res.status(500).json({ msg: 'Server error' });
+    }
+});
+
+// PATCH /api/admin/user/:id/promote - Promote a user to admin (requires admin role)
+router.patch('/users/:id/promote', adminCheck, async (req, res) => {
+    try {
+        const user = await User.findById(req.params.id);
+        if (!user) return res.status(404).json({ msg: 'User not found' });
+
+        user.role = 'admin';
+        await user.save();
+        res.json({ msg: 'User promoted to admin', user });
+    } catch (err) {
+        console.error('Error promoting user:', err.message);
+        res.status(500).json({ msg: 'Server error' });
+    }
+});
+
+// PATCH /api/admin/user/:id/demote - Demote an admin to user (requires admin role)
+router.patch('/users/:id/demote', adminCheck, async (req, res) => {
+    try {
+        const user = await User.findById(req.params.id);
+        if (!user) return res.status(404).json({ msg: 'User not found' });
+
+        user.role = 'user';
+        await user.save();
+        res.json({ msg: 'Admin demoted to user', user });
+    } catch (err) {
+        console.error('Error demoting user:', err.message);
+        res.status(500).json({ msg: 'Server error' });
+    }
+});
+
+// DELETE /api/admin/user/:id - Delete a user (requires admin role)
+router.delete('/users/:id', adminCheck, async (req, res) => {
+    try {
+        const user = await User.findById(req.params.id);
+        if (!user) return res.status(404).json({ msg: 'User not found' });
+
+        await user.remove();
+        res.json({ msg: 'User deleted successfully' });
+    } catch (err) {
+        console.error('Error deleting user:', err.message);
+        res.status(500).json({ msg: 'Server error' });
+    }
+});
+
+
+// GET /api/admin/mechanics - Fetch all mechanics (admin only)
+router.get('/mechanics', adminCheck, async (req, res) => {
+    try {
+        const mechanics = await Mechanic.find().select('-password');
+        res.json(mechanics);
+    } catch (err) {
+        console.error(err.message);
+        res.status(500).send('Server error');
+    }
+});
+
+// GET /api/admin/mechanic/:id - Fetch a specific mechanic's details (requires admin role)
+router.get('/mechanic/:id', adminCheck, async (req, res) => {
+    try {
+        const mechanic = await Mechanic.findById(req.params.id).select('-password');
+        if (!mechanic) {
+            return res.status(404).json({ msg: 'Mechanic not found' });
+        }
+        res.json(mechanic);
+    } catch (err) {
+        console.error(err.message);
+        res.status(500).send('Server error');
+    }
+});
 
 router.patch('/mechanic/:id/activate', adminCheck, async (req, res) => {
     try {
@@ -104,88 +170,19 @@ router.patch('/mechanic/:id/activate', adminCheck, async (req, res) => {
 });
 
 
-// PATCH /api/admin/user/:id/deactivate - Deactivate a user (requires admin role)
-router.patch('/user/:id/deactivate', adminCheck, async (req, res) => {
-    try {
-        const user = await User.findById(req.params.id);
-        if (!user) return res.status(404).json({ msg: 'User not found' });
-
-        user.isActive = false;
-        await user.save();
-        res.json({ msg: 'User deactivated successfully', user });
-    } catch (err) {
-        console.error('Error deactivating user:', err.message);
-        res.status(500).json({ msg: 'Server error' });
-    }
-});
-
-// PATCH /api/admin/user/:id/promote - Promote a user to admin (requires admin role)
-router.patch('/user/:id/promote', adminCheck, async (req, res) => {
-    try {
-        const user = await User.findById(req.params.id);
-        if (!user) return res.status(404).json({ msg: 'User not found' });
-
-        user.role = 'admin';
-        await user.save();
-        res.json({ msg: 'User promoted to admin', user });
-    } catch (err) {
-        console.error('Error promoting user:', err.message);
-        res.status(500).json({ msg: 'Server error' });
-    }
-});
-
-// PATCH /api/admin/user/:id/demote - Demote an admin to user (requires admin role)
-router.patch('/user/:id/demote', adminCheck, async (req, res) => {
-    try {
-        const user = await User.findById(req.params.id);
-        if (!user) return res.status(404).json({ msg: 'User not found' });
-
-        user.role = 'user';
-        await user.save();
-        res.json({ msg: 'Admin demoted to user', user });
-    } catch (err) {
-        console.error('Error demoting user:', err.message);
-        res.status(500).json({ msg: 'Server error' });
-    }
-});
-
-// DELETE /api/admin/user/:id - Delete a user (requires admin role)
-router.delete('/user/:id', adminCheck, async (req, res) => {
-    try {
-        const user = await User.findById(req.params.id);
-        if (!user) return res.status(404).json({ msg: 'User not found' });
-
-        await user.remove();
-        res.json({ msg: 'User deleted successfully' });
-    } catch (err) {
-        console.error('Error deleting user:', err.message);
-        res.status(500).json({ msg: 'Server error' });
-    }
-});
-
-// GET /api/admin/mechanics - Fetch all mechanics (requires admin role)
-router.get('/mechanics', adminCheck, async (req, res) => {
-    try {
-        const mechanics = await Mechanic.find().select('-password');
-        res.json({ mechanics });
-    } catch (err) {
-        console.error('Error fetching mechanics:', err.message);
-        res.status(500).json({ msg: 'Server error' });
-    }
-});
-
 // PATCH /api/admin/mechanic/:id/approve - Approve a mechanic (requires admin role)
 router.patch('/mechanic/:id/approve', adminCheck, async (req, res) => {
     try {
         const mechanic = await Mechanic.findById(req.params.id);
-        if (!mechanic) return res.status(404).json({ msg: 'Mechanic not found' });
-
+        if (!mechanic) {
+            return res.status(404).json({ msg: 'Mechanic not found' });
+        }
         mechanic.isApproved = true;
         await mechanic.save();
         res.json({ msg: 'Mechanic approved', mechanic });
     } catch (err) {
-        console.error('Error approving mechanic:', err.message);
-        res.status(500).json({ msg: 'Server error' });
+        console.error(err.message);
+        res.status(500).send('Server error');
     }
 });
 
@@ -193,14 +190,15 @@ router.patch('/mechanic/:id/approve', adminCheck, async (req, res) => {
 router.patch('/mechanic/:id/reject', adminCheck, async (req, res) => {
     try {
         const mechanic = await Mechanic.findById(req.params.id);
-        if (!mechanic) return res.status(404).json({ msg: 'Mechanic not found' });
-
+        if (!mechanic) {
+            return res.status(404).json({ msg: 'Mechanic not found' });
+        }
         mechanic.isApproved = false;
         await mechanic.save();
         res.json({ msg: 'Mechanic rejected', mechanic });
     } catch (err) {
-        console.error('Error rejecting mechanic:', err.message);
-        res.status(500).json({ msg: 'Server error' });
+        console.error(err.message);
+        res.status(500).send('Server error');
     }
 });
 
@@ -226,6 +224,30 @@ router.patch('/mechanic/:id', adminCheck, async (req, res) => {
     }
 });
 
+
+// PATCH /api/admin/mechanic/:id - Update mechanic details (requires admin role)
+router.patch('/mechanic/:id', adminCheck, async (req, res) => {
+    const { username, email, specialization, certification } = req.body;
+
+    try {
+        const mechanic = await Mechanic.findById(req.params.id);
+        if (!mechanic) {
+            return res.status(404).json({ msg: 'Mechanic not found' });
+        }
+
+        if (username) mechanic.username = username;
+        if (email) mechanic.email = email;
+        if (specialization) mechanic.specialization = specialization;
+        if (certification) mechanic.certification = certification;
+
+        await mechanic.save();
+        res.json(mechanic);
+    } catch (err) {
+        console.error(err.message);
+        res.status(500).send('Server error');
+    }
+});
+
 // DELETE /api/admin/mechanic/:id - Delete a mechanic (requires admin role)
 router.delete('/mechanic/:id', adminCheck, async (req, res) => {
     try {
@@ -237,6 +259,27 @@ router.delete('/mechanic/:id', adminCheck, async (req, res) => {
     } catch (err) {
         console.error('Error deleting mechanic:', err.message);
         res.status(500).json({ msg: 'Server error' });
+    }
+});
+
+// GET /api/admin/servicerequests - Fetch all service requests (requires admin role)
+router.get('/servicerequests', adminCheck, async (req, res) => {
+    try {
+        const serviceRequests = await ServiceRequest.find()
+            .populate('userId', 'name email')
+            .populate('mechanicId', 'name specialization')
+            .select('-__v');
+
+        const serviceRequestsWithDefaults = serviceRequests.map((request) => ({
+            ...request._doc,
+            pickup: request.pickup || { address: 'Not provided' },
+            dropoff: request.dropoff || { address: 'Not provided' }
+        }));
+
+        res.json(serviceRequestsWithDefaults);
+    } catch (err) {
+        console.error(err.message);
+        res.status(500).send('Server error');
     }
 });
 

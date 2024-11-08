@@ -94,7 +94,11 @@ const PaymentForm = () => {
     }
 
     try {
+<<<<<<< HEAD
       const { data } = await axios.post('http://localhost:8000/api/payment/payment', {
+=======
+      const { data } = await axios.post('http://localhost:5000/create-payment-intent', {
+>>>>>>> cf94cd5 (db)
         amount,
         cardholderName,
       });

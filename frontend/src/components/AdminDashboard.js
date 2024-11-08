@@ -17,21 +17,21 @@ const AdminDashboard = () => {
   });
 
   useEffect(() => {
-    axios.get('http://localhost:8000/api/admin/mechanics')
+    axios.get('http://localhost:5000/api/admin/mechanics')
       .then(response => setMechanics(response.data))
       .catch(error => console.error('Error fetching mechanics:', error));
 
-    axios.get('http://localhost:8000/api/admin/users')
+    axios.get('http://localhost:5000/api/admin/users')
       .then(response => setUsers(response.data))
       .catch(error => console.error('Error fetching users:', error));
 
-    axios.get('http://localhost:8000/api/admin/stats')
+    axios.get('http://localhost:5000/api/admin/stats')
       .then(response => setStats(response.data))
       .catch(error => console.error('Error fetching stats:', error));
   }, []);
 
   const approveMechanic = (mechanicId) => {
-    axios.patch(`http://localhost:8000/api/admin/mechanic/${mechanicId}/approve`)
+    axios.patch(`http://localhost:5000/api/admin/mechanic/${mechanicId}/approve`)
       .then(response => {
         setMechanics(mechanics.map(mechanic =>
           mechanic._id === mechanicId ? { ...mechanic, isApproved: true } : mechanic
@@ -42,7 +42,7 @@ const AdminDashboard = () => {
   };
 
   const toggleBanUser = (userId) => {
-    axios.patch(`http://localhost:8000/api/admin/user/${userId}/ban`)
+    axios.patch(`http://localhost:5000/api/admin/user/${userId}/ban`)
       .then(response => {
         setUsers(users.map(user =>
           user._id === userId ? { ...user, isBanned: !user.isBanned } : user

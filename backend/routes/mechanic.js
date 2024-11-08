@@ -9,8 +9,57 @@ const jwt = require('jsonwebtoken');
 const bcrypt = require('bcryptjs');
 const Mechanic = require('../models/ mechanicmodel'); // Updated to use the Mechanic model
 const authMiddleware = require('../middleware/authMiddleware');
+// const ServiceRequest = require('../models/ServiceRequestSchema'); 
+// const User = require('../models/User');
 
 
+router.post('/service-requests/:token', async (req, res) => {
+    const { token } = req.params;
+
+    try {
+        // Verify the token and get mechanic ID
+        const decoded = jwt.verify(token, process.env.JWT_SECRET);
+        const mechanicId = decoded.mechanic.id;
+        console.log(mechanicId);
+
+        const mechanic = await Mechanic.findById(mechanicId);
+        if (!mechanic) {
+            return res.status(404).json({ message: 'Mechanic not found' });
+        }
+
+        const { specialization, location: liveLocation } = mechanic;
+
+        console.log('Mechanic Location:', liveLocation.coordinates);
+
+        // Fetch all service requests that match the mechanic's specialization
+        const serviceRequests = await ServiceRequest.find({
+            specialization: specialization.toLowerCase(),
+            status: 'pending'
+        });
+
+        res.json({ nearbyRequest: serviceRequests[serviceRequests.length - 1] });
+        
+    } catch (error) {
+        console.error('Error fetching service requests:', error);
+        res.status(500).json({ message: 'Failed to fetch service requests' });
+    }
+});
+
+
+// Find user
+router.get('/user/:userId', async (req, res) => {
+    try {
+        const userId = req.params.userId;
+        const user = await User.findById(userId);
+        if (!user) {
+            return res.status(404).json({ message: 'User not found' });
+        }
+        res.json(user);
+    } catch (error) {
+        console.error('Error fetching user details:', error);
+        res.status(500).json({ message: 'Server error' });
+    }
+});
 
 
 // Define the upload directory
@@ -213,5 +262,103 @@ router.get('/search', async (req, res) => {
         res.status(500).json({ error: 'Server error' });
     }
 });
+// Server route should be fine as it is
+router.post('/update-availability', async (req, res) => {
+    const { mechanicId, isAvailable, liveLocation } = req.body;
 
+    try {
+        const updateData = { isAvailable };
+
+        if (isAvailable && liveLocation) {
+            updateData.liveLocation = {
+                address: liveLocation.address,
+                coordinates: liveLocation.coordinates
+            };
+        } else {
+            updateData.liveLocation = null;
+        }
+
+        const updatedMechanic = await Mechanic.findByIdAndUpdate(
+            mechanicId,
+            updateData,
+            { new: true }
+        );
+
+        if (!updatedMechanic) {
+            return res.status(404).json({ message: 'Mechanic not found' });
+        }
+
+        res.json(updatedMechanic);
+    } catch (error) {
+        console.error('Error updating mechanic availability:', error);
+        res.status(500).json({ message: 'Server error', error });
+    }
+});
+
+
+
+
+// Mechanic Profile
+router.get('/profile/:mechanicId', async (req, res) => {
+    try {
+        const mechanic = await Mechanic.findById(req.params.mechanicId);
+        if (!mechanic) {
+            return res.status(404).json({ message: 'Mechanic not found' });
+        }
+        res.json({
+            _id: mechanic._id,
+            username: mechanic.username,
+            certificationNumber: mechanic.certificationNumber,
+            specialization: mechanic.specialization,
+            vehicleSpecialization: mechanic.vehicleSpecialization,
+        });
+    } catch (error) {
+        res.status(500).json({ message: error.message });
+    }
+});
+
+
+// Accept service request
+router.put('/accept/:serviceRequestId', async (req, res) => {
+    const { serviceRequestId } = req.params;
+
+    try {
+        const updatedRequest = await ServiceRequest.findByIdAndUpdate(
+            serviceRequestId,
+            { status: 'accepted', acceptedAt: new Date() },
+            { new: true }
+        );
+
+        if (!updatedRequest) {
+            return res.status(404).json({ message: 'Service request not found' });
+        }
+
+        res.json({
+            message: 'Service request status updated to accepted',
+            serviceRequest: updatedRequest
+        });
+    } catch (error) {
+        console.error('Error updating service request status:', error.message);
+        res.status(500).json({ message: 'Server error' });
+    }
+});
+
+
+// Check if latest request is accepted
+router.get('/service-requests', async (req, res) => {
+    try {
+        const serviceRequests = await ServiceRequest.find();
+
+        if (serviceRequests.length > 0) {
+            const firstRequest = serviceRequests[serviceRequests.length - 1];
+            const isAccepted = firstRequest.status === 'accepted';
+            return res.json({ accepted: isAccepted });
+        } else {
+            return res.json({ accepted: false });
+        }
+    } catch (error) {
+        console.error('Error fetching service requests:', error.message);
+        res.status(500).json({ message: 'Server error' });
+    }
+});
 module.exports = router;  

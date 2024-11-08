@@ -106,7 +106,7 @@ import axios from 'axios';
 import { io } from 'socket.io-client';
 import { FaToggleOn, FaToggleOff, FaMapMarkerAlt, FaTools, FaClipboardList, FaMoneyBillWave, FaBox } from 'react-icons/fa';
 
-const socket = io('http://localhost:8000');
+const socket = io('http://localhost:5000');
 
 // Placeholder components - replace these with your actual components
 const CompletedRepairs = () => <div>Completed Repairs Component</div>;
@@ -148,22 +148,37 @@ export default function MechanicDashboard() {
     }
   };
 
+<<<<<<< HEAD
+=======
+  
+>>>>>>> cf94cd5 (db)
 
-  const updateMechanicStatus = async (latitude, longitude, availability) => {
+  const updateMechanicStatus = async (latitude, longitude, isAvailable) => {
     try {
-      const token = localStorage.getItem('token'); // Retrieve the token
-      await axios.post('http://localhost:8000/api/mechanic-request', 
-        { latitude, longitude, availability },
-        {
-          headers: {
-            Authorization: `Bearer ${token}`,
-          },
-        }
-      );
+        const token = localStorage.getItem('token'); // Retrieve the token
+        const mechanicId = "672790273a1a29b580a80f61"; // Replace with dynamic mechanicId as needed
+
+        await axios.post(
+            'http://localhost:5000/api/mechanic/update-availability',
+            {
+                mechanicId,
+                isAvailable,
+                liveLocation: latitude && longitude ? {
+                    coordinates: [latitude, longitude]
+                } : null
+            },
+            {
+                headers: {
+                    Authorization: `Bearer ${token}`,
+                },
+            }
+        );
     } catch (error) {
-      console.error('Error updating mechanic status:', error);
+        console.error('Error updating mechanic status:', error);
     }
-  };
+};
+
+
   
 
   useEffect(() => {
@@ -171,7 +186,7 @@ export default function MechanicDashboard() {
       console.log('Socket connected:', socket.id);
     });
 
-    axios.get('http://localhost:8000/api/packages')
+    axios.get('http://localhost:5000/api/packages')
       .then(response => setPackages(response.data))
       .catch(error => console.error('Error fetching packages:', error));
 

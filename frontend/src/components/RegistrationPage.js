@@ -47,7 +47,7 @@ export default function RegisterForm() {
     setIsSubmitting(true);
     setServerError('');
     try {
-      const response = await axios.post('http://localhost:8000/api/auth/register', formData);
+      const response = await axios.post('http://localhost:5000/api/auth/register', formData);
       console.log('Registration Successful:', response.data);
       setSuccessMessage('Registration successful! Redirecting to your dashboard...');
       setFormData({ username: '', email: '', password: '', phoneNumber: '', address: '' });

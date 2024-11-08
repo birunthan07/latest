@@ -79,7 +79,7 @@ function App() {
           <Route path="/payment" element={<PaymentPage />} />
           <Route path="/mechanic-dashboard" element={<MechanicDashboard />} />
           <Route path="/completed-repairs" element={<CompletedRepairs />} />
-          <Route path="/mechanic-requests" element={<MechanicRequests />} />
+          <Route path="/service-requests" element={<MechanicRequests />} />
         </Routes>
       </div>
     </Router>

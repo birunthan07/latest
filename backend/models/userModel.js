@@ -71,8 +71,8 @@ const UserSchema = new mongoose.Schema({
     email: {
         type: String,
         unique: true,
-        required: function() { return this.isNew || this.isModified('email'); },
-        match: [/.+\@.+\..+/, 'Please provide a valid email address']
+        required: [true, 'Email is required'],
+        match: [/.+\@.+\..+/, 'Please provide a valid email address']  // Validate email format
     },
     password: {
         type: String,
@@ -80,8 +80,8 @@ const UserSchema = new mongoose.Schema({
     },
     role: {
         type: String,
-        enum: ['user', 'admin'],
-        default: 'user'
+        enum: ['user', 'admin'],  // Define valid roles, including mechanic
+        default: 'user'           // Default role
     },
     isActive: {
         type: Boolean,
@@ -89,15 +89,15 @@ const UserSchema = new mongoose.Schema({
     },
     address: {
         type: String,
-        required: function() { return this.isNew || this.isModified('address'); }
+        required: [true, 'Address is required']  // User address for locating services
     },
     phoneNumber: {
         type: String,
-        required: function() { return this.isNew || this.isModified('phoneNumber'); },
-        match: [/^\d{10}$/, 'Please provide a valid phone number']
+        required: [true, 'Phone number is required'],  // Contact number
+        match: [/^\d{10}$/, 'Please provide a valid phone number']  // Validate phone format
     },
     createdAt: {
         type: Date,
-        default: Date.now
+        default: Date.now        // Track account creation date
     }
 });
